@@ -1,0 +1,45 @@
+<%= form_with(model: prize, local: true) do |form| %>
+  <% if prize.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(prize.errors.count, "error") %> prohibited this prize from being saved:</h2>
+
+      <ul>
+        <% prize.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :title %>
+    <%= form.text_field :title %>
+  </div>
+   <div class="field">
+    <%= form.label :key %>
+    <%= form.text_field :key %>
+  </div>
+  <div class="field">
+    <%= form.label :drawable %>
+    <%= form.check_box :drawable %>
+  </div>
+
+  <div class="field">
+    <%= form.label :quantity %>
+    <%= form.number_field :quantity %>
+  </div>
+
+  <div class="field">
+    <%= form.label :bulk %>
+    <%= form.number_field :bulk %>
+  </div>
+
+  <div class="field">
+    <%= form.label :limited %>
+    <%= form.check_box :limited %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

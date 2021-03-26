@@ -1,0 +1,192 @@
+
+<style>
+ .swal-wide{
+    margin-top: -127px !important;
+    width: 57.875rem;
+    margin-left: -27.9375rem;
+    font-size: 70px;
+  }
+  h2, .h2 {
+    font-size: 3.813rem;
+  }
+</style>
+<script type="text/javascript">
+  $(document).ready(function(){
+  });
+
+  function draw(limit) {
+    var url = $(location).attr('href');
+    var parts = url.split("/");
+    var prize_id = parts[parts.length-1];
+    var nameDisplay = document.getElementById('name-list');
+    var draw_result;
+    $.ajax({
+      type:"POST",
+      url:"/prizes/"+prize_id+"/draw",
+      dataType:"json",
+      data: {limit: limit},
+      success:function(result){
+        console.log(result) // for debug
+        draw_result = result;
+        if (draw_result.result == true) {
+          var i = 0;
+          (function looper() {
+            if( i < draw_result.display_name_list.length ) {
+              nameDisplay.innerHTML = draw_result.display_name_list[i]['department'] + '/' + draw_result.display_name_list[i]['name'];
+              i++;
+              setTimeout( looper, 100);
+            }
+          })();
+        } else {
+          alert(draw_result.message);
+        }
+      }
+    })
+
+    setTimeout(function(){
+      if(draw_result.result == true){
+        $('#fulfilled_quantity').html('已抽: ' + draw_result.winner_count);
+        var currentCount = document.getElementById("winner_list").childElementCount;
+        var winner_text = '';
+        draw_result.winners.forEach(function(element){
+          currentCount = currentCount +1;
+          winner_text += element.department + ', ' + element.name + '</br>'
+          $('#winner_list').append(
+            '<tr>'+
+              '<td class="align-middle">'+ currentCount + '</td>' +
+              '<td class="align-middle">' + element.department + '</td>' +
+              '<td class="align-middle">'+ element.name + '</td>' +
+              '<td class="table-action"><a onclick="remove_record(' + prize_id + ',' + element.id + ')" class="btn btn-icon btn-outline-primary"><i class="feather icon-trash"></i></a></td>'+
+            '</tr>'
+          )
+        });
+        document.getElementById('name-list').innerHTML = winner_text;
+        swal({title: winner_text, html: true, customClass: 'swal-wide'});
+      }
+    }, 2500);
+  }
+
+  function remove_record(prize_id, user_id) {
+    if (confirm("確定要刪除嗎？")) {
+      $.ajax({
+        type:"POST",
+        url:"/prizes/"+prize_id+"/remove_record",
+        dataType:"json",
+        data: {user_id: user_id},
+        success:function(result){
+          if (result.result == true) {
+            $('#fulfilled_quantity').html('已抽: ' + result.winner_count);
+            var winner_text = '';
+            $('#winner_list').html('');
+            var count = 1;
+            result.winners.forEach(function(element){
+              winner_text += element.department + ', ' + element.name + '</br>'
+              $('#winner_list').append(
+                '<tr>'+
+                  '<td class="align-middle">'+ count + '</td>' +
+                  '<td class="align-middle">' + element.department + '</td>' +
+                  '<td class="align-middle">'+ element.name + '</td>' +
+                  '<td class="table-action"><a onclick="remove_record(' + prize_id + ',' + element.id + ')" class="btn btn-icon btn-outline-primary"><i class="feather icon-trash"></i></a></td>'+
+                '</tr>'
+              )
+              count = count + 1 ;
+            });
+            alert('刪除成功');
+          } else {
+            alert(result.message);
+          }
+        }
+      })
+    }
+  }
+</script>
+
+
+    <!-- [ Preloader ] End -->
+  
+    <!-- [ Layout wrapper ] Start -->
+    <div class="layout-wrapper layout-2">
+        <div class="layout-inner">
+            <!-- [ Layout container ] Start -->
+            <div class="layout-container">
+                <!-- [ Layout content ] Start -->
+                <div class="layout-content">
+                    <!-- [ content ] Start -->
+                    
+                    <div class="container-fluid flex-grow-1 container-p-y">
+                        <h4 class="font-weight-bold py-3 mb-0">獎項: <%= @prize.title %></h4>
+                        <h5 class="font-weight-bold py-3 mb-0">名額: <%= @prize.quantity %></h5>
+                        <h5 class="font-weight-bold py-3 mb-0" id='fulfilled_quantity'>已抽: <%= @prize.fulfilled_quantity %></h5>
+                        <div class="text-muted small mt-0 mb-4 d-block breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/prizes">返回</a></li>
+                            </ol>
+                        </div>
+                        <div id='name-list' style="background-color:#F0F0F0;text-align:center;line-height:100px;font-size:3.813rem;"></div>
+                        <button class="start-button" id="draw_prize" onclick="draw(1)">
+                          抽獎
+                          <div></div>
+                        </button> 
+                        <% if @prize.bulk > 1%>
+                          <button class="start-button" id="draw_prize_bulk" onclick="draw(<%=@prize.bulk%>)">
+                            抽<%=@prize.bulk%>個
+                            <div></div>
+                          </button> 
+                        <%end%>
+                        <div class="row">
+                            <!-- customar project  start -->
+                            <div class="col-12">
+                            
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">  
+                                        </div>
+                                        <div class="card">
+                                          <div class="card-datatable table-responsive">
+                                              <table id="report-table" class="table mb-0">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                      <th>編號</th>
+                                                      <th>部門</th>
+                                                      <th>中獎人</th>
+                                                      <th>取消</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id='winner_list'>
+                                                  <% @users.each_with_index do |user, index| %>
+                                                    <tr>
+                                                      <td class="align-middle">
+                                                        <%= (index + 1)%>
+                                                      </td>
+                                                      <td class="align-middle">
+                                                        <%= user.department%>
+                                                      </td>
+                                                      <td class="align-middle">
+                                                        <%= user.name%>
+                                                      </td>
+
+                                                      <td class="table-action">
+                                                        <a onclick="remove_record(<%=@prize.id%>,<%=user.id%>)" class="btn btn-icon btn-outline-primary"><i class="feather icon-trash"></i></a>
+                                                      </td>
+                                                    </tr>
+                                                  <%end%>
+                                                </tbody>
+                                            </table>
+                                          </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- customar project  end -->
+                        </div>
+                    </div>
+                    <!-- [ content ] End -->
+
+                </div>
+                <!-- [ Layout content ] Start -->
+            </div>
+            <!-- [ Layout container ] End -->
+        </div>
+        <!-- Overlay -->
+        <div class="layout-overlay layout-sidenav-toggle"></div>
+    </div>

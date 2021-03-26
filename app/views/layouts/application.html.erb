@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SlYearEndParty</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+  </head>
+
+  <body>
+    <%= yield %>
+    <script src="/assets/js/jquery-3.2.1.min.js"></script>
+    <script src="/assets/js/pace.js"></script>
+    <script src="/assets/libs/popper/popper.js"></script>
+    <script src="/assets/js/sidenav.js"></script>
+    <script src="/assets/js/layout-helpers.js"></script>
+    <script src="/assets/js/material-ripple.js"></script>
+
+    <!-- Libs -->
+    <script src="/assets/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/assets/libs/bootbox/bootbox.js"></script>
+    <script src="/assets/libs/bootstrap-sweetalert/bootstrap-sweetalert.js"></script>
+
+    <!-- Demo -->
+    <script src="/assets/js/demo.js"></script><script src="/assets/js/analytics.js"></script>
+    <script src="/assets/js/pages/ui_modals.js"></script>
+
+  </body>
+</html>
