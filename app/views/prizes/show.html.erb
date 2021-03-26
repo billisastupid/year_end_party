@@ -31,8 +31,12 @@
         if (draw_result.result == true) {
           var i = 0;
           (function looper() {
-            if( i < draw_result.display_name_list.length ) {
-              nameDisplay.innerHTML = draw_result.display_name_list[i]['department'] + '/' + draw_result.display_name_list[i]['name'];
+            if( i <= draw_result.display_name_list.length ) {
+              if(i == draw_result.display_name_list.length) {
+                nameDisplay.innerHTML =  '';
+              } else {
+                nameDisplay.innerHTML = draw_result.display_name_list[i]['department'] + '/' + draw_result.display_name_list[i]['name'];
+              }
               i++;
               setTimeout( looper, 100);
             }
